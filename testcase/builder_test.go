@@ -1,7 +1,8 @@
-package flatbuffers
+package testcase
 
 import (
 	"bytes"
+	"github.com/tsingson/goflatbuffers/go"
 	"testing"
 )
 
@@ -15,9 +16,9 @@ func TestBuilder_CreateByteVector(t *testing.T) {
 	}
 	size := len(raw)
 	for s := 1; s < size; s++ {
-		b2 := NewBuilder(0)
+		b2 := flatbuffers.NewBuilder(0)
 		b2.CreateByteVector(raw[:s])
-		b1 := NewBuilder(0)
+		b1 := flatbuffers.NewBuilder(0)
 		b1.StartVector(1, s, 1)
 		for i := s - 1; i >= 0; i-- {
 			b1.PrependByte(raw[i])
@@ -33,9 +34,9 @@ func CheckCreateByteVector(fail func(string, ...interface{})) {
 	}
 	size := len(raw)
 	for s := 1; s < size; s++ {
-		b2 := NewBuilder(0)
+		b2 := flatbuffers.NewBuilder(0)
 		b2.CreateByteVector(raw[:s])
-		b1 := NewBuilder(0)
+		b1 := flatbuffers.NewBuilder(0)
 		b1.StartVector(1, s, 1)
 		for i := s - 1; i >= 0; i-- {
 			b1.PrependByte(raw[i])
