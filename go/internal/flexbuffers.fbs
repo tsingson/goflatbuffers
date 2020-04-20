@@ -1,0 +1,48 @@
+namespace flexbuffers.types;
+
+// These are used in the lower 2 bits of a type field to determine the size of
+// the elements (and or size field) of the item pointed to (e.g. vector).
+enum BitWidth : int8 {
+   WIDTH_8 = 0,
+   WIDTH_16 = 1,
+   WIDTH_32 = 2,
+   WIDTH_64 = 3
+}
+
+// These are used as the upper 6 bits of a type field to indicate the actual
+// type.
+enum FBT : int8 {
+   NULL = 0,
+   INT = 1,
+   UINT = 2,
+   FLOAT = 3,
+  // Types above stored inline, types below store an offset.
+   KEY = 4,
+   STRING = 5,
+   INDIRECT_INT = 6,
+   INDIRECT_UINT = 7,
+   INDIRECT_FLOAT = 8,
+   MAP = 9,
+   VECTOR = 10,      // Untyped.
+   VECTOR_INT = 11,  // Typed any size (stores no type table).
+   VECTOR_UINT = 12,
+   VECTOR_FLOAT = 13,
+   VECTOR_KEY = 14,
+  // DEPRECATED, use  VECTOR or  VECTOR_KEY instead.
+  // Read test.cpp/FlexBuffersDeprecatedTest() for details on why.
+   VECTOR_STRING_DEPRECATED = 15,
+   VECTOR_INT2 = 16,  // Typed tuple (no type table, no size field).
+   VECTOR_UINT2 = 17,
+   VECTOR_FLOAT2 = 18,
+   VECTOR_INT3 = 19,  // Typed triple (no type table, no size field).
+   VECTOR_UINT3 = 20,
+   VECTOR_FLOAT3 = 21,
+   VECTOR_INT4 = 22,  // Typed quad (no type table, no size field).
+   VECTOR_UINT4 = 23,
+   VECTOR_FLOAT4 = 24,
+   BLOB = 25,
+   BOOL = 26,
+   VECTOR_BOOL =
+      36,  // To Allow the same type of conversion of type to vector type
+}
+

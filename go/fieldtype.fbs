@@ -1,0 +1,31 @@
+namespace typetable;
+
+enum FieldType:byte {
+ 	None = 0,
+ 	UType,
+ 	Bool,
+ 	Int8,
+ 	Uint8,
+ 	Byte,
+ 	Int16,
+ 	Uint16,
+ 	Int32,
+ 	Uint32,
+ 	Int64,
+ 	Uint64,
+ 	Float32,
+ 	Float64,
+ 	String,
+ 	ByteSlice,
+ 	Int8Slice,
+ 	VectorPoint,
+ 	Scalar,
+ 	Enum,
+ 	Struct,
+ 	Table,
+ 	Union,
+ 	Array,
+ 	FlexTable,
+ 	Customized
+}
+
