@@ -1,6 +1,5 @@
 package types
 
-
 func GetBitWidth(b uint8) uint8 {
 	return uint8((b << 6) >> 6)
 }
@@ -24,7 +23,6 @@ func GetInt8(buf []byte) (n int8) {
 	n = int8(buf[0])
 	return
 }
-
 
 func IsInline(t FBT) bool {
 	return (t <= FBTFLOAT) || (t == FBTBOOL)

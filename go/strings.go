@@ -26,10 +26,9 @@ func (b *Vector) string(s string) VField {
 	// 	WriteByte(header.B[int(header.head)+l+i:int(header.head)+l+i+1], uint8(0))
 	// }
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(64)
 	}
-	b.b.Reset()
-	b.b.FixedLength(total + SizeSOffsetT).Pad(pad)
+	b.b.Reset(total + SizeSOffsetT).Pad(pad)
 	copy(b.b.B[b.head:], s)
 	b.EndVector(b.objectSize)
 	b.finished = true

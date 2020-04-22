@@ -1,178 +1,141 @@
+// code copy from github.com/libp2p/go-buffer-pool, copyright belong to The Go Authors and Steven Allen.
+//
+// Package pool provides a sync.Pool equivalent that buckets incoming
+// requests to one of 32 sub-pools, one for each power of 2, 0-32.
+//
+//	import (pool "github.com/libp2p/go-buffer-pool")
+//	var p pool.BufferPool
+//
+//	small := make([]byte, 1024)
+//	large := make([]byte, 4194304)
+//	p.Put(small)
+//	p.Put(large)
+//
+//	small2 := p.Get(1024)
+//	large2 := p.Get(4194304)
+//	fmt.Println("small2 len:", len(small2))
+//	fmt.Println("large2 len:", len(large2))
+//
+//	// Output:
+//	// small2 len: 1024
+//	// large2 len: 4194304
+//
 package bytepool
 
 import (
-	"sort"
+	"math"
+	"math/bits"
 	"sync"
-	"sync/atomic"
 )
 
-const (
-	minBitSize = 6 // 2**6=64 is a CPU cache line size
-	steps      = 20
+// GlobalPool is a static Pool for reusing byteslices of various sizes.
+var GlobalPool = new(BufferPool)
 
-	minSize = 1 << minBitSize
-	maxSize = 1 << (minBitSize + steps - 1)
+// MaxLength is the maximum length of an element that can be added to the Pool.
+const MaxLength = math.MaxInt32
 
-	calibrateCallsThreshold = 42000
-	maxPercentile           = 0.95
-)
-
-// Pool represents byte buffer pool.
+// BufferPool is a pool to handle cases of reusing elements of varying sizes. It
+// maintains 32 internal pools, for each power of 2 in 0-32.
 //
-// Distinct pools may be used for distinct types of byte buffers.
-// Properly determined byte buffer types with their own pools may help reducing
-// memory waste.
-type Pool struct {
-	calls       [steps]uint64
-	calibrating uint64
-
-	defaultSize uint64
-	maxSize     uint64
-
-	pool sync.Pool
+// You should generally just call the package level Get and Put methods or use
+// the GlobalPool BufferPool instead of constructing your own.
+//
+// You MUST NOT copy Pool after using.
+type BufferPool struct {
+	pools [32]sync.Pool // a list of singlePools
+	ptrs  sync.Pool
 }
 
-var defaultPool Pool
+type bufp struct {
+	buf []byte
+}
 
-// Get returns an empty byte buffer from the pool.
+// Get retrieves a buffer of the appropriate length from the buffer pool or
+// allocates a new one. Get may choose to ignore the pool and treat it as empty.
+// Callers should not assume any relation between values passed to Put and the
+// values returned by Get.
 //
-// Got byte buffer may be returned to the pool via Put call.
-// This reduces the number of memory allocations required for byte buffer
-// management.
-func GetSize(n int) *ByteBuffer { return defaultPool.GetSize(n) }
-
-// Get returns new byte buffer with zero length.
-//
-// The byte buffer may be returned to the pool via Put after the use
-// in order to minimize GC overhead.
-func (p *Pool) GetSize(n int) *ByteBuffer {
-	v := p.pool.Get()
-	if v != nil {
-		return v.(*ByteBuffer)
+// If no suitable buffer exists in the pool, Get creates one.
+func (p *BufferPool) Get(length int) []byte {
+	if length == 0 {
+		return nil
 	}
-	if n <= 0 {
-		return &ByteBuffer{
-			B: make([]byte, 0, atomic.LoadUint64(&p.defaultSize)),
+	if length > MaxLength {
+		return make([]byte, length)
+	}
+	idx := nextLogBase2(uint32(length))
+	if ptr := p.pools[idx].Get(); ptr != nil {
+		bp := ptr.(*bufp)
+		buf := bp.buf[:uint32(length)]
+		bp.buf = nil
+		p.ptrs.Put(ptr)
+		return buf
+	}
+	return make([]byte, 1<<idx)[:uint32(length)]
+}
+
+// Put adds x to the pool.
+func (p *BufferPool) Put(buf []byte) {
+	capacity := cap(buf)
+	if capacity == 0 || capacity > MaxLength {
+		return // drop it
+	}
+	idx := prevLogBase2(uint32(capacity))
+	var bp *bufp
+	if ptr := p.ptrs.Get(); ptr != nil {
+		bp = ptr.(*bufp)
+	} else {
+		bp = new(bufp)
+	}
+	bp.buf = buf
+	p.pools[idx].Put(bp)
+}
+
+// Get retrieves a buffer of the appropriate length from the global buffer pool
+// (or allocates a new one).
+func Get(length int) []byte {
+	return GlobalPool.Get(length)
+}
+
+// Put returns a buffer to the global buffer pool.
+func Put(slice []byte) {
+	GlobalPool.Put(slice)
+}
+
+func putClean(slice []byte) {
+	if len(slice) > 0 {
+		for i := 0; i < len(slice); i++ {
+			writeInt8(slice[i:], 0x0)
 		}
 	}
-	return &ByteBuffer{
-		B: make([]byte, 0, n),
-	}
-} // Get returns an empty byte buffer from the pool.
-//
-// Got byte buffer may be returned to the pool via Put call.
-// This reduces the number of memory allocations required for byte buffer
-// management.
-func Get() *ByteBuffer { return defaultPool.Get() }
-
-// Get returns new byte buffer with zero length.
-//
-// The byte buffer may be returned to the pool via Put after the use
-// in order to minimize GC overhead.
-func (p *Pool) Get() *ByteBuffer {
-	v := p.pool.Get()
-	if v != nil {
-		return v.(*ByteBuffer)
-	}
-	return &ByteBuffer{
-		B: make([]byte, 0, atomic.LoadUint64(&p.defaultSize)),
-	}
 }
 
-// Put returns byte buffer to the pool.
-//
-// ByteBuffer.B mustn't be touched after returning it to the pool.
-// Otherwise data races will occur.
-func Put(b *ByteBuffer) {
-	b.Reset()
-	defaultPool.Put(b)
+func (p *BufferPool) PutClean(slice []byte) {
+	putClean(slice)
+	p.Put(slice)
 }
 
-// Put releases byte buffer obtained via Get to the pool.
-//
-// The buffer mustn't be accessed after returning to the pool.
-func (p *Pool) Put(b *ByteBuffer) {
-	idx := index(len(b.B))
-
-	if atomic.AddUint64(&p.calls[idx], 1) > calibrateCallsThreshold {
-		p.calibrate()
-	}
-
-	maxSize := int(atomic.LoadUint64(&p.maxSize))
-	if maxSize == 0 || cap(b.B) <= maxSize {
-		b.Reset()
-		p.pool.Put(b)
-	}
+// Log of base two, round up (for v > 0).
+func nextLogBase2(v uint32) uint32 {
+	return uint32(bits.Len32(v - 1))
 }
 
-func (p *Pool) calibrate() {
-	if !atomic.CompareAndSwapUint64(&p.calibrating, 0, 1) {
-		return
+// Log of base two, round down (for v > 0)
+func prevLogBase2(num uint32) uint32 {
+	next := nextLogBase2(num)
+	if num == (1 << uint32(next)) {
+		return next
 	}
-
-	a := make(callSizes, 0, steps)
-	var callsSum uint64
-	for i := uint64(0); i < steps; i++ {
-		calls := atomic.SwapUint64(&p.calls[i], 0)
-		callsSum += calls
-		a = append(a, callSize{
-			calls: calls,
-			size:  minSize << i,
-		})
-	}
-	sort.Sort(a)
-
-	defaultSize := a[0].size
-	maxSize := defaultSize
-
-	maxSum := uint64(float64(callsSum) * maxPercentile)
-	callsSum = 0
-	for i := 0; i < steps; i++ {
-		if callsSum > maxSum {
-			break
-		}
-		callsSum += a[i].calls
-		size := a[i].size
-		if size > maxSize {
-			maxSize = size
-		}
-	}
-
-	atomic.StoreUint64(&p.defaultSize, defaultSize)
-	atomic.StoreUint64(&p.maxSize, maxSize)
-
-	atomic.StoreUint64(&p.calibrating, 0)
+	return next - 1
 }
 
-type callSize struct {
-	calls uint64
-	size  uint64
+func writeInt8(buf []byte, n int8) {
+	buf[0] = byte(n)
 }
 
-type callSizes []callSize
-
-func (ci callSizes) Len() int {
-	return len(ci)
-}
-
-func (ci callSizes) Less(i, j int) bool {
-	return ci[i].calls > ci[j].calls
-}
-
-func (ci callSizes) Swap(i, j int) {
-	ci[i], ci[j] = ci[j], ci[i]
-}
-
-func index(n int) int {
-	n--
-	n >>= minBitSize
-	idx := 0
-	for n > 0 {
-		n >>= 1
-		idx++
-	}
-	if idx >= steps {
-		idx = steps - 1
-	}
-	return idx
+// preAlloc64 pre pad
+func preAlloc64(additionalBytes int) int {
+	alignSize := (^(additionalBytes)) + 1
+	alignSize &= 63
+	return additionalBytes + alignSize
 }

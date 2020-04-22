@@ -22,7 +22,7 @@ func TestGetFBType(t *testing.T) {
 	if fbType1 != fbt {
 		t.Error("fbt error")
 	}
-	if IsInline(FBT( fbt )) {
+	if IsInline(FBT(fbt)) {
 		fmt.Println("--------------------- is inline")
 	}
 }
