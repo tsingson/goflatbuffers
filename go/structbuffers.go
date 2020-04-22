@@ -62,7 +62,7 @@ func NewStruct() *StructBuffers {
 func (b *StructBuffers) Release() bool {
 	b.release = false
 	if b.b != nil {
-		bytepool.Put(b.b)
+		b.b.Release()
 		b.b = nil
 	}
 	return b.release
@@ -80,12 +80,9 @@ func (b *StructBuffers) setup(minalign, fixted, slot int) *StructBuffers {
 	b.slot = slot
 	b.finished = false
 	b.vector = false
-
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(fixted)
 	}
-	b.b.Reset()
-	b.b.FixedLength(fixted)
 	return b
 }
 
