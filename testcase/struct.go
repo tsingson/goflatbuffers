@@ -12,7 +12,7 @@ type Vec3T struct {
 }
 
 //
-// func (t *Vec3T) Pack(builder *flatbuffers.ScalarStruct) flatbuffers.VField {
+// func (t *Vec3T) Pack(builder *flatbuffers.StructBuffers) flatbuffers.VField {
 // 	if t == nil {
 // 		return 0
 // 	}
@@ -80,13 +80,13 @@ func (rcv *Vec3) MutateC(n Color) bool {
 }
 
 func CreateVec3(x float32, y float32, z float32, c Color) flatbuffers.VField {
-	builder := flatbuffers.NewStruct().StartStruct(4, 16, 4)
+	builder := flatbuffers.NewStruct().StructStart(4, 16, 4)
 	builder.Pad(3)
 	builder.Byte(byte(c), 12)
 	builder.Float32(z, 8)
 	builder.Float32(y, 4)
 	builder.Float32(x, 0)
-	return builder.EndStruct()
+	return builder.StructEnd()
 }
 
 // Vec3TypeTable return type table

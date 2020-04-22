@@ -1,11 +1,12 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestGetFBType(t *testing.T) {
-	fbt := uint8(36)
+	fbt := uint8(3)
 	btw := uint8(3)
 
 	fbType := SetFBType(fbt, btw)
@@ -20,6 +21,9 @@ func TestGetFBType(t *testing.T) {
 
 	if fbType1 != fbt {
 		t.Error("fbt error")
+	}
+	if IsInline(FBT( fbt )) {
+		fmt.Println("--------------------- is inline")
 	}
 }
 

@@ -14,7 +14,7 @@ func TestVector_Array_Struct(t *testing.T) {
 	v3 := CreateVec3(1.3, 1.1, 1.2, ColorGreen)
 
 	vf := flatbuffers.NewVector().StructArray(0, []flatbuffers.VField{v1, v2, v3}...)
-	buf := vf.Payload()
+	buf := vf.FinishByte()
 
 	vec := &Vec3{}
 	vec.Init(buf[4:], 0)

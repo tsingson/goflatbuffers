@@ -2,8 +2,8 @@ package flatbuffers
 
 import "github.com/tsingson/goflatbuffers/go/bytepool"
 
-// ScalarStruct scalar vec
-type ScalarStruct struct {
+// StructBuffers scalar vec
+type StructBuffers struct {
 	parent int64
 
 	b    *bytepool.ByteBuffer // encoded vec into binary slice
@@ -27,39 +27,39 @@ type ScalarStruct struct {
 	vector    bool
 }
 
-func (b *ScalarStruct) Press() error {
+func (b *StructBuffers) Press() error {
 	return nil
 }
 
 // Type return field type
-func (b *ScalarStruct) Type() FieldType {
+func (b *StructBuffers) Type() FieldType {
 	return b.t
 }
 
 // Finished return serialize result
-func (b *ScalarStruct) IsFinished() bool {
+func (b *StructBuffers) IsFinished() bool {
 	return b.finished
 }
 
 // IsVector is vector or not
-func (b *ScalarStruct) IsVector() bool {
+func (b *StructBuffers) IsVector() bool {
 	return b.vector
 }
 
 // Size  return byte size
-func (b *ScalarStruct) Size() int {
+func (b *StructBuffers) Size() int {
 	return b.byteSize
 }
 
 // NewScalarStruct new scalar vec
-func NewStruct() *ScalarStruct {
-	b := &ScalarStruct{}
+func NewStruct() *StructBuffers {
+	b := &StructBuffers{}
 	b.t = FieldTypeStruct
 	return b
 }
 
 // Pack pack
-func (b *ScalarStruct) Release() bool {
+func (b *StructBuffers) Release() bool {
 	b.release = false
 	if b.b != nil {
 		bytepool.Put(b.b)
@@ -69,12 +69,12 @@ func (b *ScalarStruct) Release() bool {
 }
 
 // Init  initial  new scalar struct
-func Init(minalign, bytesize, slot int) *ScalarStruct {
-	b := &ScalarStruct{}
+func Init(minalign, bytesize, slot int) *StructBuffers {
+	b := &StructBuffers{}
 	return b.setup(minalign, bytesize, slot)
 }
 
-func (b *ScalarStruct) setup(minalign, fixted, slot int) *ScalarStruct {
+func (b *StructBuffers) setup(minalign, fixted, slot int) *StructBuffers {
 	b.minalign = minalign
 	b.byteSize = fixted // ( slot + 2) * SizeVOffsetT
 	b.slot = slot
@@ -90,107 +90,107 @@ func (b *ScalarStruct) setup(minalign, fixted, slot int) *ScalarStruct {
 }
 
 // Init initial scalar vec
-func (b *ScalarStruct) StartStruct(minalign, bytesize, slot int) *ScalarStruct {
+func (b *StructBuffers) StructStart(minalign, bytesize, slot int) *StructBuffers {
 	b.setup(minalign, bytesize, slot)
 	return b
 }
 
 // TypeName name of vec
-func (b *ScalarStruct) TypeName() string {
+func (b *StructBuffers) TypeName() string {
 	return b.name
 }
 
 // Pad filled the pad via "0" byte
-func (b *ScalarStruct) Pad(n int) {
+func (b *StructBuffers) Pad(n int) {
 	// do nothing
 }
 
 // Bool insert a field into vec
-func (b *ScalarStruct) Bool(x bool, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Bool(x bool, n VOffsetT) *StructBuffers {
 	WriteBool(b.b.B[int(n):], x)
 	return b
 }
 
 // Int8 insert a field into vec
-func (b *ScalarStruct) Int8(x int8, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Int8(x int8, n VOffsetT) *StructBuffers {
 	WriteInt8(b.b.B[int(n):], x)
 	return b
 }
 
 // Int8 insert a field into vec
-func (b *ScalarStruct) Byte(x byte, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Byte(x byte, n VOffsetT) *StructBuffers {
 	WriteByte(b.b.B[int(n):], x)
 	return b
 }
 
 // Int16 insert a field into vec
-func (b *ScalarStruct) Int16(x int16, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Int16(x int16, n VOffsetT) *StructBuffers {
 	WriteInt16(b.b.B[int(n):], x)
 	return b
 }
 
 // Int32 insert a field into vec
-func (b *ScalarStruct) Int32(x int32, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Int32(x int32, n VOffsetT) *StructBuffers {
 	WriteInt32(b.b.B[int(n):], x)
 	return b
 }
 
 // Int64 insert a field into vec
-func (b *ScalarStruct) Int64(x int64, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Int64(x int64, n VOffsetT) *StructBuffers {
 	WriteInt64(b.b.B[int(n):], x)
 	return b
 }
 
 // Uint8 insert a field into vec
-func (b *ScalarStruct) Uint8(x uint8, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Uint8(x uint8, n VOffsetT) *StructBuffers {
 	WriteUint8(b.b.B[int(n):], x)
 	return b
 }
 
 // Uint16 insert a field into vec
-func (b *ScalarStruct) Uint16(x uint16, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Uint16(x uint16, n VOffsetT) *StructBuffers {
 	WriteUint16(b.b.B[int(n):], x)
 	return b
 }
 
 // Uint32 insert a field into vec
-func (b *ScalarStruct) Uint32(x uint32, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Uint32(x uint32, n VOffsetT) *StructBuffers {
 	WriteUint32(b.b.B[int(n):], x)
 	return b
 }
 
 // Uint64 insert a field into vec
-func (b *ScalarStruct) Uint64(x uint64, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Uint64(x uint64, n VOffsetT) *StructBuffers {
 	WriteUint64(b.b.B[int(n):], x)
 	return b
 }
 
 // Float32 insert a field into vec
-func (b *ScalarStruct) Float32(x float32, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Float32(x float32, n VOffsetT) *StructBuffers {
 	WriteFloat32(b.b.B[int(n):], x)
 	return b
 }
 
 // Float64 insert a field into vec
-func (b *ScalarStruct) Float64(x float64, n VOffsetT) *ScalarStruct {
+func (b *StructBuffers) Float64(x float64, n VOffsetT) *StructBuffers {
 	WriteFloat64(b.b.B[int(n):], x)
 	return b
 }
 
 // SetName
-func (b *ScalarStruct) SetName(name string) *ScalarStruct {
+func (b *StructBuffers) SetName(name string) *StructBuffers {
 	b.name = name
 	return b
 }
 
-// FinishStruct finish scalar vec
-func (b *ScalarStruct) EndStruct() VField {
+// StructEnd finish scalar vec
+func (b *StructBuffers) StructEnd() VField {
 	b.finished = true
 	return b
 }
 
 // FinishByte return []byte
-func (b *ScalarStruct) Payload() []byte {
+func (b *StructBuffers) FinishByte() []byte {
 	if !b.finished {
 		_ = b.Press()
 	}
@@ -199,11 +199,11 @@ func (b *ScalarStruct) Payload() []byte {
 }
 
 // B return []byte
-func (b *ScalarStruct) ByteSize() int {
+func (b *StructBuffers) ByteSize() int {
 	return b.byteSize
 }
 
 // B return []byte
-func (b *ScalarStruct) ObjectSize() int {
+func (b *StructBuffers) ObjectSize() int {
 	return b.objectSize
 }

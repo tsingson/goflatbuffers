@@ -29,21 +29,21 @@ func TestColor_Strings(t *testing.T) {
 	// fmt.Printf("%b\n", v.FinishByte())
 	as.Equal(v.ObjectSize(), 3)
 	// as.Equal(v.ByteSize(), 20)
-	as.Equal(v.ByteSize(), len(v.Payload()))
+	as.Equal(v.ByteSize(), len(v.FinishByte()))
 
 	v = flatbuffers.NewVector().VectcorArray(0, []flatbuffers.VField{v3, v2, v1}...)
 	v = flatbuffers.NewVector().VectcorArray(0, []flatbuffers.VField{v3, v2, v1}...)
 	// fmt.Printf("%b\n", v.FinishByte())
 	as.Equal(v.ObjectSize(), 3)
 	// as.Equal(v.ByteSize(), 20)
-	as.Equal(v.ByteSize(), len(v.Payload()))
+	as.Equal(v.ByteSize(), len(v.FinishByte()))
 }
 
 func BenchmarkColor_String(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			flatbuffers.NewVector().String(0, "1").Payload()
+			flatbuffers.NewVector().String(0, "1").FinishByte()
 		}
 	})
 }

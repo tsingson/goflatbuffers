@@ -34,7 +34,7 @@ func (b *Vector) ObjectSize() int {
 }
 
 // FinishByte  finish serialize and return []byte
-func (b *Vector) Payload() []byte {
+func (b *Vector) FinishByte() []byte {
 	if b.finished {
 		b.release = true
 		// bytepool.Put(header.header)

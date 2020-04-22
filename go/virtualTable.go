@@ -238,7 +238,7 @@ func (b *VirtualTable) ByteSize() int {
 }
 
 // FinishByte return []byte
-func (b *VirtualTable) Payload() []byte {
+func (b *VirtualTable) FinishByte() []byte {
 	if !b.finished {
 		_ = b.Press()
 	}
