@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/tsingson/goflatbuffers/go/bytepool"
-
 	"math/bits"
 )
 
@@ -21,13 +20,11 @@ func main() {
 	// copy ( g[0:], []byte("12345678"))
 	fmt.Printf("%b\n", g)
 	buf := bytepool.NewByteBuffer(129)
-	buf.Reset()
 	buf = bytepool.NewByteBuffer(245)
 	copy(buf.B[0:], []byte("1238"))
 	fmt.Println(buf.Cap())
 	fmt.Println(buf.Len())
-	buf.Reset()
-	buf.NewSize(111)
+	buf.Reset(111)
 	copy(buf.B[0:], []byte("1238"))
 	// copy(buf.B[0:], []byte("1238"))
 	fmt.Printf("%b\n", buf.Bytes())
