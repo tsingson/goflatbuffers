@@ -65,7 +65,7 @@ func NewStruct() *FlexBuilder {
 func (b *FlexBuilder) Release() bool {
 	b.release = false
 	if b.b != nil {
-		bytepool.Put(b.b)
+		b.b.Release()
 		b.b = nil
 	}
 	return b.release
@@ -85,10 +85,9 @@ func (b *FlexBuilder) setup(minalign, fixted, slot int) *FlexBuilder {
 	b.vector = false
 
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(fixted)
 	}
-	b.b.Reset()
-	b.b.FixedLength(fixted)
+	b.b.Reset(fixted)
 	return b
 }
 

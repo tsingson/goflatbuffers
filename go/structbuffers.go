@@ -86,9 +86,26 @@ func (b *StructBuffers) setup(minalign, fixted, slot int) *StructBuffers {
 	return b
 }
 
+func (b *StructBuffers) prepad(minalign, fixted int) *StructBuffers {
+	b.minalign = minalign
+	b.byteSize = fixted // ( slot + 2) * SizeVOffsetT
+	b.finished = false
+	b.vector = false
+	if b.b == nil {
+		b.b = bytepool.NewByteBuffer(fixted)
+	}
+	return b
+}
+
+
 // Init initial scalar vec
 func (b *StructBuffers) StructStart(minalign, bytesize, slot int) *StructBuffers {
 	b.setup(minalign, bytesize, slot)
+	return b
+}
+// Init initial scalar vec
+func (b *StructBuffers) Prep(minalign, bytesize int) *StructBuffers {
+	b.prepad(minalign, bytesize)
 	return b
 }
 
