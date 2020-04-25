@@ -35,7 +35,7 @@ func TestScalar_Int64(t *testing.T) {
 			as.False(v.IsVector())
 			as.Equal(v.ByteSize(), tc.size)
 			as.True(v.IsFinished())
-			as.Equal(flatbuffers.GetInt64(v.FinishByte()), int64(tc.in))
+			as.Equal(flatbuffers.GetInt64(v.FinishedBytes()), int64(tc.in))
 		})
 
 	}
@@ -49,7 +49,7 @@ func TestScalar_Float64(t *testing.T) {
 	as.True(v.IsFinished())
 	as.Equal(v.ByteSize(), 8)
 
-	as.Equal(flatbuffers.GetFloat64(v.FinishByte()), float64(100.01))
+	as.Equal(flatbuffers.GetFloat64(v.FinishedBytes()), float64(100.01))
 }
 
 func BenchmarkScalar_Float64(b *testing.B) {
@@ -69,7 +69,7 @@ func BenchmarkScalar_Float64_1(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			// for i := 0; i < 100; i++ {
-			flatbuffers.NewScalar().Float64(100.01).FinishByte()
+			flatbuffers.NewScalar().Float64(100.01).FinishedBytes()
 			// }
 			// v.Release()
 		}
@@ -92,7 +92,7 @@ func TestNewScalar(t *testing.T) {
 	as := assert.New(t)
 
 	v := flatbuffers.NewScalar().Float64(100.01)
-	as.Equal(flatbuffers.GetFloat64(v.FinishByte()), float64(100.01))
+	as.Equal(flatbuffers.GetFloat64(v.FinishedBytes()), float64(100.01))
 	as.False(v.IsVector())
 	as.True(v.IsFinished())
 	as.Equal(v.ByteSize(), 8)

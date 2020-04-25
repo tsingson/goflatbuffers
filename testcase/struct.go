@@ -79,9 +79,9 @@ func (rcv *Vec3) MutateC(n Color) bool {
 	return rcv._tab.MutateByte(rcv._tab.Pos+flatbuffers.UOffsetT(12), byte(n))
 }
 
-func CreateVec3(x float32, y float32, z float32, c Color) flatbuffers.VField {
-	builder := flatbuffers.NewStruct().StructStart(4, 16, 4)
-	builder.Pad(3)
+func CreateVec3(builder *flatbuffers.StructBuffers, x float32, y float32, z float32, c Color) flatbuffers.VField {
+	builder.Prep(4, 16)
+	builder.Pad(3, 13)
 	builder.Byte(byte(c), 12)
 	builder.Float32(z, 8)
 	builder.Float32(y, 4)
