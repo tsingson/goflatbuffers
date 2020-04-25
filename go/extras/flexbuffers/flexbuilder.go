@@ -191,8 +191,8 @@ func (b *FlexBuilder) StructEnd() flatbuffers.VField {
 	return b
 }
 
-// FinishByte return []byte
-func (b *FlexBuilder) FinishByte() []byte {
+// FinishedBytes return []byte
+func (b *FlexBuilder) FinishedBytes() []byte {
 	if !b.finished {
 		_ = b.Press()
 	}

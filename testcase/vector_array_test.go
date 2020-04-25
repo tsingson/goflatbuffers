@@ -162,14 +162,14 @@ func TestVector_Array_Int8Slice(t *testing.T) {
 
 func TestVector_Array_Srruct(t *testing.T) {
 	as := assert.New(t)
-
-	v1 := CreateVec3(1.1, 1.1, 1.2, ColorGreen)
+	fb := flatbuffers.NewStruct()
+	v1 := CreateVec3(fb, 1.1, 1.1, 1.2, ColorGreen)
 	// v2 := vec.CreateVec3(1, 1.1, 1, true, vec.ColorBlue)
 	// v3 := vec.CreateVec3(1, 1.1, 1, true, vec.ColorBlue)
 	// v4 := vec.CreateVec3(1, 1.1, 1, true, vec.ColorBlue)
 	// v5 := vec.CreateVec3(1, 1.1, 1, true, vec.ColorBlue)
 	l := []flatbuffers.VField{v1, v1} //  v2, v3, v4, v5}
-	// fmt.Printf("%4b\n", v1.FinishByte())
+	// fmt.Printf("%4b\n", v1.FinishedBytes())
 	v := flatbuffers.NewVector().StructArray(0, l...)
 
 	as.Equal(v.ByteSize(), 4+len(l)*v1.ByteSize())

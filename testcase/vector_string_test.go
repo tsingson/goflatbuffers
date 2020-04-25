@@ -12,7 +12,7 @@ func TestColor_String(t *testing.T) {
 	s := "123"
 	v := flatbuffers.NewVector().String(0, s)
 	_, total := flatbuffers.Prepad(flatbuffers.SizeSOffsetT, len(s)+1+flatbuffers.SizeSOffsetT)
-	// fmt.Printf("%b\n", v.FinishByte())
+	// fmt.Printf("%b\n", v.FinishedBytes())
 	// fmt.Println(total, len(s))
 	as.Equal(v.ObjectSize(), len(s))
 	as.Equal(v.ByteSize(), total)
@@ -26,24 +26,24 @@ func TestColor_Strings(t *testing.T) {
 	v3 := flatbuffers.NewVector().String(0, "333")
 
 	v := flatbuffers.NewVector().VectcorArray(0, []flatbuffers.VField{v1, v2, v3}...)
-	// fmt.Printf("%b\n", v.FinishByte())
+	// fmt.Printf("%b\n", v.FinishedBytes())
 	as.Equal(v.ObjectSize(), 3)
 	// as.Equal(v.ByteSize(), 20)
-	as.Equal(v.ByteSize(), len(v.FinishByte()))
+	as.Equal(v.ByteSize(), len(v.FinishedBytes()))
 
 	v = flatbuffers.NewVector().VectcorArray(0, []flatbuffers.VField{v3, v2, v1}...)
 	v = flatbuffers.NewVector().VectcorArray(0, []flatbuffers.VField{v3, v2, v1}...)
-	// fmt.Printf("%b\n", v.FinishByte())
+	// fmt.Printf("%b\n", v.FinishedBytes())
 	as.Equal(v.ObjectSize(), 3)
 	// as.Equal(v.ByteSize(), 20)
-	as.Equal(v.ByteSize(), len(v.FinishByte()))
+	as.Equal(v.ByteSize(), len(v.FinishedBytes()))
 }
 
 func BenchmarkColor_String(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			flatbuffers.NewVector().String(0, "1").FinishByte()
+			flatbuffers.NewVector().String(0, "1").FinishedBytes()
 		}
 	})
 }

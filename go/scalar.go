@@ -241,7 +241,7 @@ func (b *Scalar) Float64(x float64) VField {
 	return b
 }
 
-// FinishByte return []byte
-func (b *Scalar) FinishByte() []byte {
+// FinishedBytes return []byte
+func (b *Scalar) FinishedBytes() []byte {
 	return b.b.Bytes()
 }

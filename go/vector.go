@@ -33,8 +33,8 @@ func (b *Vector) ObjectSize() int {
 	return b.objectSize
 }
 
-// FinishByte  finish serialize and return []byte
-func (b *Vector) FinishByte() []byte {
+// FinishedBytes  finish serialize and return []byte
+func (b *Vector) FinishedBytes() []byte {
 	if b.finished {
 		b.release = true
 		return b.b.Bytes()

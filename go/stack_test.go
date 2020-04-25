@@ -23,14 +23,14 @@ func TestNewStack(t *testing.T) {
 	if chk {
 		as.Equal(v1.ByteSize(), 8)
 		fmt.Println(v1.ByteSize())
-		fmt.Println(GetFloat64(v1.FinishByte()))
+		fmt.Println(GetFloat64(v1.FinishedBytes()))
 	}
 	fmt.Println(s.NumsElement())
 	v2, chk2 := s.Pop()
 	if chk2 {
 		as.Equal(v2.ByteSize(), 8)
 		fmt.Println(v2.ByteSize())
-		fmt.Println(GetFloat64(v2.FinishByte()))
+		fmt.Println(GetFloat64(v2.FinishedBytes()))
 	}
 	fmt.Println(s.NumsElement())
 }

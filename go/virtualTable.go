@@ -236,8 +236,8 @@ func (b *VirtualTable) ByteSize() int {
 	return b.header.Len()
 }
 
-// FinishByte return []byte
-func (b *VirtualTable) FinishByte() []byte {
+// FinishedBytes return []byte
+func (b *VirtualTable) FinishedBytes() []byte {
 	if !b.finished {
 		_ = b.Press()
 	}

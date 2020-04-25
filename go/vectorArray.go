@@ -42,7 +42,7 @@ func (b *Vector) VectcorArray(off VOffsetT, s ...VField) VField {
 	offset := SizeSOffsetT + add
 	for j := b.objectSize - 1; j >= 0; j-- {
 		offset = offset - s[j].ByteSize()
-		copy(b.b.B[offset:], s[j].FinishByte())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 	b.EndVector(b.objectSize)
@@ -72,7 +72,7 @@ func (b *Vector) StructArray(off VOffsetT, s ...VField) VField {
 
 		//	fmt.Println(" off :", offset , " j: ", j, " bytesize: ", s[j].ByteSize())
 
-		copy(b.b.B[offset:], s[j].FinishByte())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 	b.EndVector(b.objectSize)
@@ -98,7 +98,7 @@ func (b *Vector) ScalarArray(off VOffsetT, s ...VField) VField {
 	for j := b.objectSize - 1; j >= 0; j-- {
 		offset = offset - s[j].ByteSize()
 		// fmt.Println(" off :", offset, " j: ", j, " bytesize: ", s[j].ByteSize())
-		copy(b.b.B[offset:], s[j].FinishByte())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 
