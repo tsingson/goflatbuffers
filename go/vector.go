@@ -20,7 +20,7 @@ type Vector struct {
 }
 
 func (b *Vector) Release() bool {
-	bytepool.Put(b.b)
+	b.b.Release()
 	b.release = true
 	return b.release
 }
@@ -33,11 +33,10 @@ func (b *Vector) ObjectSize() int {
 	return b.objectSize
 }
 
-// FinishByte  finish serialize and return []byte
-func (b *Vector) Payload() []byte {
+// FinishedBytes  finish serialize and return []byte
+func (b *Vector) FinishedBytes() []byte {
 	if b.finished {
 		b.release = true
-		// bytepool.Put(header.header)
 		return b.b.Bytes()
 	}
 	return nil
@@ -66,7 +65,7 @@ func (b *Vector) TypeName() string {
 // NewVector  new vector
 func NewVector() *Vector {
 	b := &Vector{}
-	b.b = bytepool.Get()
+	b.b = bytepool.NewByteBuffer(64)
 	b.head = SizeSOffsetT
 	return b
 }
@@ -81,11 +80,9 @@ func (b *Vector) ByteSlice(off VOffsetT, s []byte) VField {
 	pad, total := Prepad(int(SizeUOffsetT), (b.objectSize+1)*SizeByte)
 
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(64)
 	}
-	b.b.Reset()
-
-	b.b.FixedLength(total + SizeSOffsetT).Pad(pad)
+	b.b.Reset(total + SizeSOffsetT).Pad(pad)
 
 	for i := 0; i < pad; i++ {
 		WriteByte(b.b.B[int(b.head)+i+b.objectSize:int(b.head)+i+b.objectSize+1], uint8(0))
@@ -108,10 +105,9 @@ func (b *Vector) Int8Slice(off VOffsetT, s []int8) VField {
 	pad, total := Prepad(int(SizeUOffsetT), (b.objectSize)*SizeByte)
 
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(64)
 	}
-	b.b.Reset()
-	b.b.FixedLength(total + SizeSOffsetT)
+	b.b.Reset(total + SizeSOffsetT)
 
 	for i := 0; i < pad; i++ {
 		WriteByte(b.b.B[int(b.head)+b.objectSize+i:int(b.head)+b.objectSize+i+1], uint8(0))

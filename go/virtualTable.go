@@ -47,7 +47,7 @@ type VirtualTable struct {
 func NewVirtualTable() *VirtualTable {
 	v := &VirtualTable{}
 	v.once = sync.Once{}
-	v.header = bytepool.Get()
+	v.header = bytepool.NewByteBuffer(64)
 	/**
 	if n > 0 {
 		v.tableSize = VOffsetT((n + 2) * SizeVOffsetT)
@@ -115,10 +115,9 @@ func (b *VirtualTable) setup(minalign, fixted, slot int) *VirtualTable {
 	b.finished = false
 
 	if b.header == nil {
-		b.header = bytepool.Get()
+		b.header = bytepool.NewByteBuffer(64)
 	}
-	b.header.Reset()
-	b.header.FixedLength(fixted)
+	b.header.Reset(fixted)
 
 	return b
 }
@@ -237,8 +236,8 @@ func (b *VirtualTable) ByteSize() int {
 	return b.header.Len()
 }
 
-// FinishByte return []byte
-func (b *VirtualTable) Payload() []byte {
+// FinishedBytes return []byte
+func (b *VirtualTable) FinishedBytes() []byte {
 	if !b.finished {
 		_ = b.Press()
 	}

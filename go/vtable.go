@@ -21,7 +21,7 @@ func NewVTable() *VTable {
 func (v *VTable) Init(n, fixed int) *VTable {
 	ts := (n + 2) * SizeVOffsetT
 	v.head, v.size = Prepad(SizeSOffsetT, ts)
-	v.b = bytepool.NewByteBuffer(v.size).FixedLength(v.size)
+	v.b = bytepool.NewByteBuffer(v.size)
 	// WriteVOffsetT(v.B[(v.head+SizeVOffsetT):], VOffsetT((n+2)*SizeVOffsetT))
 	if fixed > 0 {
 		v.objectSize = fixed

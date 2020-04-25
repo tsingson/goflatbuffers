@@ -35,15 +35,14 @@ func (b *Vector) VectcorArray(off VOffsetT, s ...VField) VField {
 	}
 
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(64)
 	}
 
-	b.b.Reset()
-	b.b.FixedLength(SizeSOffsetT + add)
+	b.b.Reset(SizeSOffsetT + add)
 	offset := SizeSOffsetT + add
 	for j := b.objectSize - 1; j >= 0; j-- {
 		offset = offset - s[j].ByteSize()
-		copy(b.b.B[offset:], s[j].Payload())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 	b.EndVector(b.objectSize)
@@ -63,18 +62,17 @@ func (b *Vector) StructArray(off VOffsetT, s ...VField) VField {
 		add += v.ByteSize()
 	}
 	if b.b == nil {
-		b.b = bytepool.Get()
+		b.b = bytepool.NewByteBuffer(64)
 	}
 
-	b.b.Reset()
-	b.b.FixedLength(SizeSOffsetT + add)
+	b.b.Reset(SizeSOffsetT + add)
 	offset := SizeSOffsetT + add
 	for j := b.objectSize - 1; j >= 0; j-- {
 		offset = offset - s[j].ByteSize()
 
 		//	fmt.Println(" off :", offset , " j: ", j, " bytesize: ", s[j].ByteSize())
 
-		copy(b.b.B[offset:], s[j].Payload())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 	b.EndVector(b.objectSize)
@@ -95,13 +93,12 @@ func (b *Vector) ScalarArray(off VOffsetT, s ...VField) VField {
 	}
 	pad, total := Prepad(SizeSOffsetT, add+SizeSOffsetT)
 	// fmt.Println(" pad: ", pad, " total: ", total)
-	b.b.Reset()
-	b.b.FixedLength(total).Pad(pad)
+	b.b.Reset(total).Pad(pad)
 	offset := total - pad
 	for j := b.objectSize - 1; j >= 0; j-- {
 		offset = offset - s[j].ByteSize()
 		// fmt.Println(" off :", offset, " j: ", j, " bytesize: ", s[j].ByteSize())
-		copy(b.b.B[offset:], s[j].Payload())
+		copy(b.b.B[offset:], s[j].FinishedBytes())
 		// s[j].Release()
 	}
 

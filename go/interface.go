@@ -7,7 +7,7 @@ type VField interface {
 
 	IsVector() bool   // is vector or not
 	IsFinished() bool // check is serialize operation done or not
-	Payload() []byte
+	FinishedBytes() []byte
 	Release() bool
 	ByteSize() int
 	ObjectSize() int
