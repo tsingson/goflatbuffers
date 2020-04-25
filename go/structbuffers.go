@@ -58,6 +58,18 @@ func NewStruct() *StructBuffers {
 	return b
 }
 
+func NewFixedStruct(bytesize int) *StructBuffers {
+	b := &StructBuffers{}
+	b.t = FieldTypeStruct
+	b.byteSize = bytesize
+	b.finished = false
+	b.vector = false
+	if b.b == nil {
+		b.b = bytepool.NewByteBuffer(bytesize)
+	}
+	return b
+}
+
 // Pack pack
 func (b *StructBuffers) Release() bool {
 	b.release = false
@@ -66,12 +78,6 @@ func (b *StructBuffers) Release() bool {
 		b.b = nil
 	}
 	return b.release
-}
-
-// Init  initial  new scalar struct
-func Init(minalign, bytesize, slot int) *StructBuffers {
-	b := &StructBuffers{}
-	return b.setup(minalign, bytesize, slot)
 }
 
 func (b *StructBuffers) setup(minalign, fixted, slot int) *StructBuffers {
@@ -91,6 +97,9 @@ func (b *StructBuffers) prepad(minalign, fixted int) *StructBuffers {
 	b.byteSize = fixted // ( slot + 2) * SizeVOffsetT
 	b.finished = false
 	b.vector = false
+	if b.byteSize == fixted && b.b != nil {
+		return b
+	}
 	if b.b == nil {
 		b.b = bytepool.NewByteBuffer(fixted)
 	}
